@@ -1,4 +1,4 @@
-package com.notetaker
+package com.bima.notetaker
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

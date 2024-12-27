@@ -1,49 +1,34 @@
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {
   Text,
   StyleSheet,
   TextInput,
   View,
   Dimensions,
-  Alert,
   TouchableOpacity,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import {defaultNote, savingCache, titleAtom, valueAtom} from '../constants';
+import {saveContent} from '../util/SaveFile';
+import {useRecoilState} from 'recoil';
 
 const windowDimensions = Dimensions.get('window');
 const screenDimensions = Dimensions.get('screen');
 
-const showAlert = () => {
-  Alert.alert('No Name', 'Choose a name', [
-    {
-      text: 'Cancel',
-      onPress: () => console.log('Cancel Pressed'),
-      style: 'cancel',
-    },
-    {text: 'OK', onPress: () => console.log('OK Pressed')},
-  ]);
-};
+const TextEditor = (params: {isEditing?: boolean}) => {
+  const [value, onChangeText] = useRecoilState(valueAtom);
+  const [titleText, onChangeTitle] = useRecoilState(titleAtom);
 
-const TextEditor = (params: {isEditing: boolean}) => {
-  const defaultNote = 'Note Taker';
-  const [value, onChangeText] = React.useState('Useless Multiline Placeholder');
-  const [titleText, onChangeTitle] = useState(defaultNote);
-  const saveContent = () => {
-    // Should write the content to a save location
-    if (titleText === defaultNote && !params.isEditing) {
-      showAlert();
-    }
-    var path = RNFS.DocumentDirectoryPath + '/' + titleText + '.txt';
+  const updateStorageAndTitle = async (text: string) => {
+    onChangeTitle(text);
+  };
 
-    // write the file
-    RNFS.writeFile(path, value, 'utf8')
-      .then(success => {
-        console.log('FILE WRITTEN!');
-      })
-      .catch(err => {
-        console.log(err.message);
-      });
+  const updateStorageAndValue = (text: string) => {
+    onChangeText(text);
+  };
+
+  const quickSave = async () => {
+    saveContent({value, title: titleText});
   };
 
   return (
@@ -53,11 +38,14 @@ const TextEditor = (params: {isEditing: boolean}) => {
           style={styles.titleText}
           selectTextOnFocus={true}
           value={titleText}
-          onChangeText={text => onChangeTitle(text)}
+          onChangeText={text => updateStorageAndTitle(text)}
         />
-        <TouchableOpacity style={styles.button} onPress={saveContent}>
+        <TouchableOpacity style={styles.button} onPress={quickSave}>
           <Text>Save</Text>
         </TouchableOpacity>
+        {/*<TouchableOpacity style={styles.button} onPress={saveContent}>
+          <Text>Save</Text>
+        </TouchableOpacity> */}
       </View>
       <View style={styles.textView} accessibilityRole={'scrollbar'}>
         <TextInput
@@ -65,7 +53,7 @@ const TextEditor = (params: {isEditing: boolean}) => {
           multiline={true}
           numberOfLines={500}
           maxLength={5000}
-          onChangeText={text => onChangeText(text)}
+          onChangeText={text => updateStorageAndValue(text)}
           // onEndEditing={saveContent}
           value={value}
           style={styles.textInput}
@@ -86,6 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 5,
     paddingLeft: 5,
+    columnGap: 2,
     // fontFamily: 'Cochin',
     // height: '5%',
     // flex: 0.25,
@@ -93,7 +82,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 20,
     fontWeight: 'bold',
-    width: '85%',
+    width: '70%',
   },
   textView: {
     height: '90%',
