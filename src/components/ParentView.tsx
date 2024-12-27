@@ -1,4 +1,5 @@
-import React, {createContext, useContext, useRef, useState} from 'react';
+import React, {createContext, useContext, useRef} from 'react';
+import {BackHandler} from 'react-native';
 import {
   DrawerLayoutAndroid,
   Platform,
@@ -33,7 +34,6 @@ function ParentView({children}): React.JSX.Element {
           action: () => {
             // Open file explorer
             navigation.navigate('FileExplorer');
-
             drawer.current?.closeDrawer();
           },
         },
@@ -51,7 +51,7 @@ function ParentView({children}): React.JSX.Element {
         {
           label: 'Close',
           action: () => {
-            drawer.current?.closeDrawer();
+            BackHandler.exitApp();
           },
         },
       ],
