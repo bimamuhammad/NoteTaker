@@ -1,4 +1,4 @@
-package com.notetaker
+package com.bima.notetaker
 
 import android.app.Application
 import com.facebook.react.PackageList
