@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {defaultNote, savingCache, titleAtom, valueAtom} from '../constants';
+import { titleAtom, valueAtom} from '../constants';
 import {saveContent} from '../util/SaveFile';
 import {useRecoilState} from 'recoil';
 

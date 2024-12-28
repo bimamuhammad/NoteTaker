@@ -24,11 +24,11 @@ function App(): React.JSX.Element {
       <NavigationContainer>
         <ParentView>
           {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
-          <Stack.Navigator>
+          <Stack.Navigator initialRouteName="TextEditor">
             <Stack.Screen
               name="TextEditor"
               component={TextEditor}
-              options={{title: 'Text Editor'}}
+              options={{title: 'Text Editor', headerBackVisible: false}}
             />
             <Stack.Screen
               name="FileExplorer"

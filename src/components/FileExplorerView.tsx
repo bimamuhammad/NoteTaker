@@ -1,19 +1,57 @@
 import React, {useEffect, useState} from 'react';
 import {FlatList, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {getFiles} from '../util/GetFiles';
+import {valueAtom, titleAtom} from '../constants';
+import {useRecoilState} from 'recoil';
+import {openFile} from '../util/OpenFile';
+import {deleteFile} from '../util/DeleteFile';
+import {useNavigation} from '@react-navigation/native';
 
 type ItemProps = {
   item: string;
   onPress: () => void;
-  backgroundColor: string;
-  textColor: string;
 };
 
-const Item = ({item, onPress}: ItemProps) => (
-  <TouchableOpacity onPress={onPress} style={[styles.item]}>
-    <Text style={[styles.title, {color: '#000000'}]}>{item}</Text>
-  </TouchableOpacity>
-);
+const Item = ({item, onPress}: ItemProps) => {
+  const navigation = useNavigation();
+  const [value, setValue] = useRecoilState(valueAtom);
+  const [titleText, setTitle] = useRecoilState(titleAtom);
+
+  const handleFileSelect = (filename: string) => {
+    console.log('File selected: ', filename);
+    setTitle(filename);
+    navigation.navigate('TextEditor');
+  };
+  const handleFileDelete = (filename: string) => {
+    deleteFile(filename);
+    navigation.navigate('TextEditor');
+    console.log('File deleted: ', filename);
+  };
+
+  useEffect(() => {
+    const FetchData = async () => {
+      const text = await openFile(titleText);
+      //   if (typeof text === 'string') {
+      setValue(text);
+      console.log('File content: ', text);
+      //   }
+    };
+    FetchData();
+  }, [titleText]);
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.fileItem}>
+      <Text style={styles.fileItemText}>{item}</Text>
+      <View style={styles.fileItemButtonContainer}>
+        <TouchableOpacity onPress={() => handleFileSelect(item)}>
+          <Text style={styles.openButton}>Open</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleFileDelete(item)}>
+          <Text style={styles.deleteButton}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const FileExplorer = () => {
   const [files, setFiles] = useState(['']); //getFiles();
@@ -62,11 +100,26 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 0,
   },
-  item: {
-    marginVertical: 8,
-    marginHorizontal: 16,
+  fileItem: {
+    // marginVertical: 4,
+    // marginHorizontal: 8,
+    // paddingLeft: 8,
+    padding: 8,
+    backgroundColor: '#f9c2ff',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
-  title: {
+  fileItemText: {
     fontSize: 16,
+  },
+  fileItemButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  openButton: {
+    color: 'blue',
+  },
+  deleteButton: {
+    color: 'red',
   },
 });
