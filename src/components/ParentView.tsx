@@ -19,9 +19,8 @@ import {useNavigation} from '@react-navigation/native';
 
 const windowDimensions: ScaledSize = Dimensions.get('window');
 
-function ParentView({children}): React.JSX.Element {
+function ParentView({children, drawer}): React.JSX.Element {
   const navigation = useNavigation();
-  const drawer = useRef<DrawerLayoutAndroid>(null);
   const value = useRecoilState(valueAtom)[0];
   const title = useRecoilState(titleAtom)[0];
 

@@ -5,30 +5,59 @@
  * @format
  */
 
-import React from 'react';
+import React, {useRef} from 'react';
 import type {PropsWithChildren} from 'react';
 import TextEditor from './src/components/TextEditor';
-import {StatusBar, StyleSheet, useColorScheme} from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  useColorScheme,
+  DrawerLayoutAndroid,
+} from 'react-native';
 import ParentView from './src/components/ParentView';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RecoilRoot} from 'recoil';
 import FileExplorer from './src/components/FileExplorerView';
+import EditableHeader from './src/components/Header';
 
 const Stack = createNativeStackNavigator();
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
+  const drawer = useRef<DrawerLayoutAndroid>(null);
 
   return (
     <RecoilRoot>
       <NavigationContainer>
-        <ParentView>
+        <ParentView drawer={drawer}>
           {/* <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} /> */}
-          <Stack.Navigator initialRouteName="TextEditor">
+          <Stack.Navigator
+            initialRouteName="TextEditor"
+            screenOptions={
+              {
+                // headerStyle: {
+                //   backgroundColor: '#f4511e',
+                // },
+                // headerTintColor: '#fff',
+                // headerTitleStyle: {
+                //   fontWeight: 'bold',
+                // },
+              }
+            }>
             <Stack.Screen
               name="TextEditor"
               component={TextEditor}
-              options={{title: 'Text Editor', headerBackVisible: false}}
+              options={({navigation, route}) => ({
+                // title: 'Text Editor',
+                headerBackVisible: false,
+                headerTitle: props => (
+                  <EditableHeader
+                    navigation={navigation}
+                    route={route}
+                    drawer={drawer}
+                  />
+                ),
+              })}
             />
             <Stack.Screen
               name="FileExplorer"

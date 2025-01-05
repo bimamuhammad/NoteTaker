@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {FlatList, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {getFiles} from '../util/GetFiles';
 import {valueAtom, titleAtom} from '../constants';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useResetRecoilState} from 'recoil';
 import {openFile} from '../util/OpenFile';
 import {deleteFile} from '../util/DeleteFile';
 import {useNavigation} from '@react-navigation/native';
@@ -14,8 +14,10 @@ type ItemProps = {
 
 const Item = ({item, onPress}: ItemProps) => {
   const navigation = useNavigation();
-  const [value, setValue] = useRecoilState(valueAtom);
+  const [, setValue] = useRecoilState(valueAtom);
   const [titleText, setTitle] = useRecoilState(titleAtom);
+  const resetTitle = useResetRecoilState(titleAtom);
+  const resetValue = useResetRecoilState(valueAtom);
 
   const handleFileSelect = (filename: string) => {
     console.log('File selected: ', filename);
@@ -26,6 +28,10 @@ const Item = ({item, onPress}: ItemProps) => {
     deleteFile(filename);
     navigation.navigate('TextEditor');
     console.log('File deleted: ', filename);
+    if (filename === titleText) {
+      resetTitle();
+      resetValue();
+    }
   };
 
   useEffect(() => {
@@ -33,7 +39,7 @@ const Item = ({item, onPress}: ItemProps) => {
       const text = await openFile(titleText);
       //   if (typeof text === 'string') {
       setValue(text);
-      console.log('File content: ', text);
+      // console.log('File content: ', text);
       //   }
     };
     FetchData();

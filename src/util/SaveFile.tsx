@@ -11,7 +11,7 @@ export const saveContent = (params: {
   if (params.title === defaultNote && !params.isEditing) {
     showAlert();
   }
-  var path = RNFS.DocumentDirectoryPath + '/' + params.title + '.txt';
+  var path = RNFS.DocumentDirectoryPath + '/' + params.title;
 
   // write the file
   RNFS.writeFile(path, params.value, 'utf8')

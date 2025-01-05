@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import { titleAtom, valueAtom} from '../constants';
+import {titleAtom, valueAtom} from '../constants';
 import {saveContent} from '../util/SaveFile';
 import {useRecoilState} from 'recoil';
 
@@ -18,10 +18,6 @@ const screenDimensions = Dimensions.get('screen');
 const TextEditor = (params: {isEditing?: boolean}) => {
   const [value, onChangeText] = useRecoilState(valueAtom);
   const [titleText, onChangeTitle] = useRecoilState(titleAtom);
-
-  const updateStorageAndTitle = async (text: string) => {
-    onChangeTitle(text);
-  };
 
   const updateStorageAndValue = (text: string) => {
     onChangeText(text);
@@ -33,20 +29,6 @@ const TextEditor = (params: {isEditing?: boolean}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.titleView}>
-        <TextInput
-          style={styles.titleText}
-          selectTextOnFocus={true}
-          value={titleText}
-          onChangeText={text => updateStorageAndTitle(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={quickSave}>
-          <Text>Save</Text>
-        </TouchableOpacity>
-        {/*<TouchableOpacity style={styles.button} onPress={saveContent}>
-          <Text>Save</Text>
-        </TouchableOpacity> */}
-      </View>
       <View style={styles.textView} accessibilityRole={'scrollbar'}>
         <TextInput
           editable
