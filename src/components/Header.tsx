@@ -10,7 +10,6 @@ import {titleAtom} from '../constants';
 import {useRecoilState} from 'recoil';
 
 const EditableHeader = ({navigation, route, drawer}) => {
-  // const [title, setTitle] = useState(route.params?.title || 'Default Title');
   const [titleText, onChangeTitle] = useRecoilState(titleAtom);
 
   const handleTitleChange = (text: string) => {

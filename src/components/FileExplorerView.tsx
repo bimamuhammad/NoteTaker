@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {FlatList, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {getFiles} from '../util/GetFiles';
-import {valueAtom, titleAtom} from '../constants';
+import {valueAtom, titleAtom, openedFileAtom} from '../constants';
 import {useRecoilState, useResetRecoilState} from 'recoil';
 import {openFile} from '../util/OpenFile';
 import {deleteFile} from '../util/DeleteFile';
@@ -16,34 +16,43 @@ const Item = ({item, onPress}: ItemProps) => {
   const navigation = useNavigation();
   const [, setValue] = useRecoilState(valueAtom);
   const [titleText, setTitle] = useRecoilState(titleAtom);
+  const [, setOpenedFile] = useRecoilState(openedFileAtom);
   const resetTitle = useResetRecoilState(titleAtom);
   const resetValue = useResetRecoilState(valueAtom);
+  let openLatch = useRef(false);
 
   const handleFileSelect = (filename: string) => {
     console.log('File selected: ', filename);
+    openLatch.current = true;
     setTitle(filename);
     navigation.navigate('TextEditor');
   };
+
   const handleFileDelete = (filename: string) => {
     deleteFile(filename);
     navigation.navigate('TextEditor');
     console.log('File deleted: ', filename);
     if (filename === titleText) {
       resetTitle();
-      resetValue();
+      // resetValue();
     }
   };
 
   useEffect(() => {
     const FetchData = async () => {
+      if (!openLatch.current) {
+        return;
+      }
       const text = await openFile(titleText);
-      //   if (typeof text === 'string') {
-      setValue(text);
-      // console.log('File content: ', text);
-      //   }
+      if (typeof text === 'string' && text !== '') {
+        setValue(text);
+        setOpenedFile(titleText);
+        openLatch.current = false;
+      }
     };
     FetchData();
   }, [titleText]);
+
   return (
     <TouchableOpacity onPress={onPress} style={styles.fileItem}>
       <Text style={styles.fileItemText}>{item}</Text>

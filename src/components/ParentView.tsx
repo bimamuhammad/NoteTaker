@@ -12,9 +12,9 @@ import {
   SectionList,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {savingCache, titleAtom, valueAtom} from '../constants';
+import {savingCache, titleAtom, valueAtom, openedFileAtom} from '../constants';
 import {saveContent} from '../util/SaveFile';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useResetRecoilState} from 'recoil';
 import {useNavigation} from '@react-navigation/native';
 
 const windowDimensions: ScaledSize = Dimensions.get('window');
@@ -23,11 +23,24 @@ function ParentView({children, drawer}): React.JSX.Element {
   const navigation = useNavigation();
   const value = useRecoilState(valueAtom)[0];
   const title = useRecoilState(titleAtom)[0];
+  const resetTitle = useResetRecoilState(titleAtom);
+  const resetValue = useResetRecoilState(valueAtom);
+  const resetInitialOpen = useResetRecoilState(openedFileAtom);
+  const [openedFile, setOpenedFile] = useRecoilState(openedFileAtom);
 
   const ACTIONS = [
     {
       title: 'Menu',
       data: [
+        {
+          label: 'New',
+          action: () => {
+            resetTitle();
+            resetValue();
+            resetInitialOpen();
+            drawer.current?.closeDrawer();
+          },
+        },
         {
           label: 'File Explorer',
           action: () => {
@@ -40,7 +53,8 @@ function ParentView({children, drawer}): React.JSX.Element {
           label: 'Save',
           action: () => {
             if (value !== null && title !== null) {
-              saveContent({title, value});
+              saveContent({newtitle: title, oldtitle: openedFile, value});
+              setOpenedFile(title);
             } else {
               // alert that null value was passed
             }

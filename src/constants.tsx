@@ -12,5 +12,10 @@ export const titleAtom = atom({
 
 export const valueAtom = atom({
   key: 'valueProp',
-  default: 'Useless Multiline Placeholder',
+  default: '',
+});
+
+export const openedFileAtom = atom({
+  key: 'openedFile',
+  default: defaultNote,
 });
