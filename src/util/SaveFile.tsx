@@ -20,6 +20,7 @@ export const saveContent = (params: {
   // write the file
   RNFS.writeFile(path, params.value, 'utf8')
     .then(success => {
+      console.log(params.value);
       console.log('FILE WRITTEN!');
       if (
         params.newtitle !== params.oldtitle &&

@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, {useRef} from 'react';
+import React, {useRef, useCallback} from 'react';
 import type {PropsWithChildren} from 'react';
 import TextEditor from './src/components/TextEditor';
 import {
@@ -22,6 +22,7 @@ import FileExplorer from './src/components/FileExplorerView';
 import EditableHeader from './src/components/Header';
 
 const Stack = createNativeStackNavigator();
+
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   const drawer = useRef<DrawerLayoutAndroid>(null);
@@ -47,17 +48,12 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="TextEditor"
               component={TextEditor}
-              options={({navigation, route}) => ({
+              options={{
                 // title: 'Text Editor',
                 headerBackVisible: false,
-                headerTitle: props => (
-                  <EditableHeader
-                    navigation={navigation}
-                    route={route}
-                    drawer={drawer}
-                  />
-                ),
-              })}
+                header: prop => <EditableHeader drawer={drawer} />,
+                // headerTitle: prop => <EditableHeader drawer={drawer} />,
+              }}
             />
             <Stack.Screen
               name="FileExplorer"

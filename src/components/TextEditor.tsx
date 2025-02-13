@@ -28,32 +28,16 @@ const TextEditor = (params: {isEditing?: boolean}) => {
   const [value, onChangeText] = useRecoilState(valueAtom);
   const [titleText, onChangeTitle] = useRecoilState(titleAtom);
 
-  function useDebouncedCallback(func, delay) {
-    const timeoutRef = useRef(null);
-
-    const debouncedCallback = useCallback(
-      (...args) => {
-        clearTimeout(timeoutRef.current); // Clear any existing timeout
-
-        timeoutRef.current = setTimeout(() => {
-          func(...args); // Call the original function with the latest arguments
-        }, delay);
-      },
-      [func, delay],
-    ); // Recreate the debounced function if func or delay changes
-
-    return debouncedCallback;
-  }
-
+  const handleEditorChange = newContent => {
+    onChangeText(newContent); // Update Recoil on editor changes
+  };
   const editor = useEditorBridge({
-    autofocus: true,
+    // autofocus: true,
     avoidIosKeyboard: true,
     initialContent: value,
-    // onChange: () => debouncedUpdate(),
-  });
-  const content = useEditorContent(editor, {
-    type: 'text',
-    debounceInterval: 60,
+    onChange: () => {
+      editor.getHTML().then(text => onChangeText(text));
+    },
   });
 
   const updateStorageAndValue = text => {
@@ -111,6 +95,8 @@ const styles = StyleSheet.create({
   textView: {
     height: '90%',
     flex: 1,
+    padding: 5,
+    backgroundColor: 'white',
   },
   button: {
     fontSize: 20,

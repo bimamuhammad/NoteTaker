@@ -6,6 +6,7 @@ import {useRecoilState, useResetRecoilState} from 'recoil';
 import {openFile} from '../util/OpenFile';
 import {deleteFile} from '../util/DeleteFile';
 import {useNavigation} from '@react-navigation/native';
+import {logger} from '../util/logger';
 
 type ItemProps = {
   item: string;
@@ -25,7 +26,6 @@ const Item = ({item, onPress}: ItemProps) => {
     console.log('File selected: ', filename);
     openLatch.current = true;
     setTitle(filename);
-    navigation.navigate('TextEditor');
   };
 
   const handleFileDelete = (filename: string) => {
@@ -41,13 +41,18 @@ const Item = ({item, onPress}: ItemProps) => {
   useEffect(() => {
     const FetchData = async () => {
       if (!openLatch.current) {
+        console.log(`Latch Check:: ${titleText}`);
         return;
       }
+      console.log('Fetching Data');
+      logger.info({message: `Fetching Data for ${titleText}`});
       const text = await openFile(titleText);
       if (typeof text === 'string' && text !== '') {
+        logger.info({message: `Setting Value for ${text}`});
         setValue(text);
         setOpenedFile(titleText);
         openLatch.current = false;
+        navigation.navigate('TextEditor');
       }
     };
     FetchData();

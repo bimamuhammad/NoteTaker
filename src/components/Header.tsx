@@ -8,11 +8,13 @@ import {
 } from 'react-native';
 import {titleAtom} from '../constants';
 import {useRecoilState} from 'recoil';
+import {logger} from '../util/logger';
 
-const EditableHeader = ({navigation, route, drawer}) => {
+const EditableHeader = ({drawer}) => {
   const [titleText, onChangeTitle] = useRecoilState(titleAtom);
 
   const handleTitleChange = (text: string) => {
+    logger.info({message: 'Title changed to: ' + text});
     onChangeTitle(text);
     // navigation.setOptions({title: text});
   };
