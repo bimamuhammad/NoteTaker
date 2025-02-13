@@ -1,75 +1,71 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useCallback} from 'react';
 import {
   Text,
   StyleSheet,
   TextInput,
   View,
   Dimensions,
-  Alert,
+  Platform,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import * as RNFS from '@dr.pogodin/react-native-fs';
+import {titleAtom, valueAtom} from '../constants';
+import {saveContent} from '../util/SaveFile';
+import {useRecoilState} from 'recoil';
+import {
+  RichText,
+  Toolbar,
+  useEditorBridge,
+  useEditorContent,
+} from '@10play/tentap-editor';
+import {logger} from '../util/logger';
 
 const windowDimensions = Dimensions.get('window');
 const screenDimensions = Dimensions.get('screen');
 
-const showAlert = () => {
-  Alert.alert('No Name', 'Choose a name', [
-    {
-      text: 'Cancel',
-      onPress: () => console.log('Cancel Pressed'),
-      style: 'cancel',
+const TextEditor = (params: {isEditing?: boolean}) => {
+  const [value, onChangeText] = useRecoilState(valueAtom);
+  const [titleText, onChangeTitle] = useRecoilState(titleAtom);
+
+  const handleEditorChange = newContent => {
+    onChangeText(newContent); // Update Recoil on editor changes
+  };
+  const editor = useEditorBridge({
+    // autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent: value,
+    onChange: () => {
+      editor.getHTML().then(text => onChangeText(text));
     },
-    {text: 'OK', onPress: () => console.log('OK Pressed')},
-  ]);
-};
+  });
 
-const TextEditor = (params: {isEditing: boolean}) => {
-  const defaultNote = 'Note Taker';
-  const [value, onChangeText] = React.useState('Useless Multiline Placeholder');
-  const [titleText, onChangeTitle] = useState(defaultNote);
-  const saveContent = () => {
-    // Should write the content to a save location
-    if (titleText === defaultNote && !params.isEditing) {
-      showAlert();
-    }
-    var path = RNFS.DocumentDirectoryPath + '/' + titleText + '.txt';
+  const updateStorageAndValue = text => {
+    // editor.getText().then(text => {
+    logger.info({message: 'Text: ' + text});
+    onChangeText(text);
+    // });
+  };
 
-    // write the file
-    RNFS.writeFile(path, value, 'utf8')
-      .then(success => {
-        console.log('FILE WRITTEN!');
-      })
-      .catch(err => {
-        console.log(err.message);
-      });
+  // useEffect(() => {
+  //   // Will render each time content is updated and call onSave
+  //   logger.info({message: 'Text: ' + content});
+  //   content && onChangeText(content);
+  // }, [content, onChangeText]);
+
+  const quickSave = async () => {
+    saveContent({value, title: titleText});
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.titleView}>
-        <TextInput
-          style={styles.titleText}
-          selectTextOnFocus={true}
-          value={titleText}
-          onChangeText={text => onChangeTitle(text)}
-        />
-        <TouchableOpacity style={styles.button} onPress={saveContent}>
-          <Text>Save</Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.textView} accessibilityRole={'scrollbar'}>
-        <TextInput
-          editable
-          multiline={true}
-          numberOfLines={500}
-          maxLength={5000}
-          onChangeText={text => onChangeText(text)}
-          // onEndEditing={saveContent}
-          value={value}
-          style={styles.textInput}
-        />
+        <RichText editor={editor} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.textInput}>
+          <Toolbar editor={editor} hidden={false} />
+        </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   );
@@ -86,6 +82,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 5,
     paddingLeft: 5,
+    columnGap: 2,
     // fontFamily: 'Cochin',
     // height: '5%',
     // flex: 0.25,
@@ -93,11 +90,13 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 20,
     fontWeight: 'bold',
-    width: '85%',
+    width: '70%',
   },
   textView: {
     height: '90%',
     flex: 1,
+    padding: 5,
+    backgroundColor: 'white',
   },
   button: {
     fontSize: 20,
@@ -109,8 +108,11 @@ const styles = StyleSheet.create({
   textInput: {
     padding: 10,
     borderWidth: 1,
-    height: '100%',
+    height: '10%',
     textAlignVertical: 'top',
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
   },
 });
 

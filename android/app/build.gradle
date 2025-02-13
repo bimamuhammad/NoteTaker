@@ -77,12 +77,12 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.notetaker"
+    namespace "com.bima.notetaker"
     defaultConfig {
-        applicationId "com.notetaker"
+        applicationId "com.bima.notetaker"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 7
         versionName "1.0"
     }
     signingConfigs {
@@ -92,6 +92,17 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            println "Hello, world!"
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                println "Hello, world!!!!!!!!"
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+
+            }
+        }
     }
     buildTypes {
         debug {
@@ -100,9 +111,20 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
+
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type. Make sure to use a build
+            // variant with `debuggable false`.
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources false
+
+            proguardFiles getDefaultProguardFile(
+                "proguard-android.txt"),
+                 "proguard-rules.pro"
         }
     }
 }
